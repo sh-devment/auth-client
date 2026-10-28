@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="{{.Lang}}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{.App}}</title>
+  <link rel="icon" href="/favicon.svg?v={{.Version}}" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v={{.Version}}" />
+  <link rel="stylesheet" href="/style.css?v={{.Version}}" />
+  <script>window.TEXT = {{.Text.JS}};</script>
+</head>
+<body>
+
+{{if .Error}}
+<div class="error-banner">{{.Error}}</div>
+{{end}}
+
+{{if .User}}
+{{$name := .User.Name}}{{if not $name}}{{$name = .User.AuthID}}{{end}}
+<main class="screen">
+  <header class="header">
+    <nav class="nav-tabs">
+      <button class="tab active">{{.Text.Tab1}}</button>
+      <button class="tab">{{.Text.Tab2}}</button>
+      <button class="tab">{{.Text.Tab3}}</button>
+    </nav>
+
+    <div class="profile-area">
+      <button class="profile-btn" id="profileBtn" data-name="{{$name}}" aria-label="Account menu">
+        <span class="profile-initial">?</span>
+      </button>
+      <div class="profile-popover" id="profilePopover">
+        <div class="pi-info">
+          <span class="pi-label">{{.User.Method}}</span>
+          <span class="pi-name">{{$name}}</span>
+          {{if .User.Name}}<span class="pi-sub">{{.User.AuthID}}</span>{{end}}
+        </div>
+        <div class="pi-list">
+          <a class="pi-action" href="/apps">{{.Text.Apps}}</a>
+          <a class="pi-action" href="{{.ReadmeURL}}" target="_blank" rel="noopener">{{.Text.Readme}}</a>
+          <a class="pi-action pi-logout" href="/logout">{{.Text.Logout}}</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-content">
+    <div class="placeholder">APP</div>
+  </div>
+</main>
+
+{{else}}
+
+<div class="login-screen">
+  <div class="login-card-wrap">
+    <div class="login-card">
+      <div class="login-logo">{{.App}}</div>
+      <a class="login-domain" href="https://{{.Domain}}" target="_blank" rel="noopener">{{.Domain}}</a>
+      <a class="login-btn" href="/login">{{.Text.Login}}</a>
+    </div>
+  </div>
+  <div class="app-about">
+    <p>{{.Text.About}}</p>
+  </div>
+  <div class="login-divider">
+    <span class="login-divider-dot"></span>
+  </div>
+</div>
+
+{{end}}
+
+<script src="/script.js?v={{.Version}}"></script>
+</body>
+</html>

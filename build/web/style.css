@@ -1,0 +1,354 @@
+/* ════════════════════════════════════════════════════════════════════════
+   auth-client — all styles
+   Sections:  VARIABLES · BASE · LAYOUT · HEADER · USER MENU · LOGIN · APP · ERROR
+   App-specific styling lives under the APP section at the bottom.
+
+   Two layouts, one breakpoint:
+   - mobile (default): everything up to an iPad Pro 11" in landscape (1194px).
+     One column, sized to fit an iPhone 16e (390 × 844) without scrolling.
+   - desktop: wider than 1194px. Only the column width changes here; add
+     desktop-only rules under the same media query.
+
+   No page is taller than the screen unless its content really needs it:
+   the screen is min-height 100dvh and nothing adds height on top of it.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── VARIABLES — the project's theme lives here and only here ─────────────
+   Retint per project; every rule below consumes these, no raw colors. */
+:root {
+  --bg:          #000000;
+  --surface:     #131315;  /* cards, login card                  */
+  --surface-alt: #1c1c1f;  /* hover fill                          */
+  --line:        #2b2b2e;  /* borders, hairlines                  */
+  --text:        #f5f5f7;
+  --text-muted:  #8e8e93;
+  --accent:      #f5f5f7;
+  --bad:         #f87171;  /* destructive: log out, errors        */
+
+  /* the soft light from the top edge — the default ground */
+  --glow:
+    radial-gradient(30rem 20rem at 50% -2%, rgba(255, 255, 255, .13), transparent 70%),
+    radial-gradient(64rem 40rem at 50% -8%, rgba(255, 255, 255, .09), transparent 66%);
+
+  /* the frosted chrome: navbar pill, avatar, user menu */
+  --glass-blur: blur(24px) saturate(1.4);
+
+  --radius: 16px;
+  --pad:    20px;
+  --col:    430px;   /* mobile column */
+  --col-desktop: 1120px;
+
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+          'Segoe UI', Inter, Roboto, Arial, sans-serif;
+
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── BASE ──────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { background: none; border: none; cursor: pointer; font: inherit; color: inherit; }
+
+html { background: var(--bg); color-scheme: dark; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* the glow is fixed to the viewport, behind everything. z-index 0 + content
+   at 1, not -1: a negative layer would paint under body's own background. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--glow);
+}
+
+/* ── LAYOUT ────────────────────────────────────────────────────────────── */
+
+.screen,
+.login-screen { position: relative; z-index: 1; }
+
+.screen {
+  width: 100%;
+  max-width: var(--col);
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(var(--safe-top) + 16px) var(--pad) calc(var(--safe-bottom) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 1195px) {
+  .screen { max-width: var(--col-desktop); }
+}
+
+/* ── HEADER: segmented pill tabs (left) + user menu (right) ────────────── */
+
+.header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 5px;
+  gap: 2px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.tab {
+  height: 40px;
+  min-width: 44px;
+  padding: 0 18px;
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+
+.tab:hover  { color: var(--text); }
+.tab.active { background: color-mix(in srgb, var(--text) 10%, transparent); color: var(--text); }
+
+/* ── USER MENU: avatar + popover ───────────────────────────────────────── */
+
+.profile-area { position: relative; flex: 0 0 auto; }
+
+.profile-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 45%, transparent);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: border-color .15s, color .15s;
+}
+
+.profile-btn:hover,
+.profile-btn.open { border-color: var(--text); }
+
+.profile-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 256px;
+  max-width: calc(100vw - 2 * var(--pad));
+  padding: 14px;
+  z-index: 101;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.profile-popover.open { display: flex; }
+
+.pi-info  { display: flex; flex-direction: column; gap: 3px; }
+.pi-label { font-size: 10px; color: var(--text-muted); letter-spacing: .1em; text-transform: uppercase; }
+.pi-name  { color: var(--text); word-break: break-all; }
+.pi-sub   { font-size: 11px; color: var(--text-muted); word-break: break-all; }
+
+/* one rounded box, rows divided by hairlines */
+.pi-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.pi-action {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background .15s, color .15s;
+}
+
+.pi-action + .pi-action { border-top: 1px solid var(--line); }
+.pi-action:hover { background: var(--surface-alt); }
+
+.pi-logout       { color: var(--bad); }
+.pi-logout:hover { color: color-mix(in srgb, var(--bad) 80%, white); background: color-mix(in srgb, var(--bad) 16%, transparent); }
+
+/* ── LOGIN ─────────────────────────────────────────────────────────────────
+   Exactly one screen tall, never scrolls: card centered in the top zone,
+   description + divider anchored at the bottom. Same layout in every app. */
+
+.login-screen {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(var(--safe-top) + 24px) var(--pad) calc(var(--safe-bottom) + 28px);
+}
+
+.login-card-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 44px 40px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.login-logo {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.login-domain {
+  display: block;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 36px;
+  transition: color .15s;
+}
+
+.login-domain:hover { color: var(--text); }
+
+.login-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  text-align: center;
+  text-decoration: none;
+  transition: background .15s, border-color .15s;
+}
+
+.login-btn:hover { background: var(--surface-alt); border-color: var(--text-muted); }
+
+.app-about {
+  max-width: 380px;
+  padding-bottom: 20px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.login-divider {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.login-divider-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--text-muted);
+  flex-shrink: 0;
+  margin: 0 -1px; /* lines run flush to the circle edge */
+}
+
+/* ── APP ─────────────────────────────────────────────────────────────────
+   The logged-in content area + your app's own styles. Build here.
+   .app-content takes whatever height the header leaves, so a page whose
+   content fits stays exactly one screen tall. */
+
+.app-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 36px;
+  letter-spacing: .2em;
+  font-style: italic;
+}
+
+/* ── ERROR ─────────────────────────────────────────────────────────────── */
+
+.error-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--bad) 18%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--bad) 45%, var(--bg));
+  border-radius: 10px;
+  color: var(--bad);
+  font-size: 12px;
+  white-space: nowrap;
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- PLACEHOLDER: hazard stripes on purpose — replace with the app's own icon
+       (and regenerate apple-touch-icon.png from it: 180×180, no rounded corners). -->
+  <clipPath id="c"><rect width="32" height="32" rx="7"/></clipPath>
+  <g clip-path="url(#c)">
+    <rect width="32" height="32" fill="#ffd400"/>
+    <g fill="#111111">
+    <polygon points="-72,0 -66,0 -98,32 -104,32"/>
+    <polygon points="-60,0 -54,0 -86,32 -92,32"/>
+    <polygon points="-48,0 -42,0 -74,32 -80,32"/>
+    <polygon points="-36,0 -30,0 -62,32 -68,32"/>
+    <polygon points="-24,0 -18,0 -50,32 -56,32"/>
+    <polygon points="-12,0 -6,0 -38,32 -44,32"/>
+    <polygon points="0,0 6,0 -26,32 -32,32"/>
+    <polygon points="12,0 18,0 -14,32 -20,32"/>
+    <polygon points="24,0 30,0 -2,32 -8,32"/>
+    <polygon points="36,0 42,0 10,32 4,32"/>
+    <polygon points="48,0 54,0 22,32 16,32"/>
+    <polygon points="60,0 66,0 34,32 28,32"/>
+    <polygon points="72,0 78,0 46,32 40,32"/>
+    <polygon points="84,0 90,0 58,32 52,32"/>
+    <polygon points="96,0 102,0 70,32 64,32"/>
+    <polygon points="108,0 114,0 82,32 76,32"/>
+    <polygon points="120,0 126,0 94,32 88,32"/>
+    <polygon points="132,0 138,0 106,32 100,32"/>
+    </g>
+  </g>
+</svg>

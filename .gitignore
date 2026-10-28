@@ -1,0 +1,7 @@
+CLAUDE.md
+claude
+
+.DS_Store
+*.DS_Store
+build/auth-client.db
+.env

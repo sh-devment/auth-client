@@ -1,0 +1,40 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ matrix.region }}
+    runs-on: [self-hosted, "production-${{ matrix.region }}"]
+    environment: production-${{ matrix.region }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        region: [com, ru]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        env:
+          # Имя приложения: repo-level variable, задаётся вручную (обязательно).
+          APP: ${{ vars.APP }}
+          # Какие переменные записать в $APP.env (всё ниже в этом блоке).
+          ENV_KEYS: REGION PORT AUTH_URL AUTH_INTERNAL APP_URL APP_TOKEN SECRET_KEY
+
+          # Регион наследуется из matrix — отдельно заводить не нужно.
+          REGION: ${{ matrix.region }}
+          PORT: ${{ vars.PORT }}
+          AUTH_URL: ${{ vars.AUTH_URL }}
+          AUTH_INTERNAL: ${{ vars.AUTH_INTERNAL }}
+          APP_URL: ${{ vars.APP_URL }}
+          APP_TOKEN: ${{ secrets.APP_TOKEN }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: ./bin/deploy.sh
