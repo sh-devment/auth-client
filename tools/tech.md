@@ -12,7 +12,7 @@
 | `APP` | | Имя приложения. Показывается в интерфейсе (заголовок вкладки, логин-карточка), от него берутся имя бинаря, `/opt/$APP` и файл базы `<APP>.db`. В проде — repo-level variable, `deploy.sh` всегда пишет её в env-файл. По умолчанию — константа `defaultAppName` в `main.go` |
 | `REGION` | | `ru` \| `com`: домен и язык всех строк интерфейса (`build/region-*.go`). В проде приходит из matrix деплоя. По умолчанию `ru` |
 | `AUTH_URL` | ★ | Публичный URL auth-center — куда перенаправляется браузер пользователя |
-| `AUTH_INTERNAL` | ★ | Внутренний URL auth-center для server-to-server вызовов `/exchange` и `/delegate` |
+| `AUTH_INTERNAL` | | Внутренний URL auth-center для server-to-server вызовов `/exchange` и `/delegate` — нужен, только если приложение ходит к auth-center коротким путём (например, `http://127.0.0.1:<порт>` на том же сервере). По умолчанию — `AUTH_URL` |
 | `APP_URL` | ★ | Публичный URL этого приложения — auth-center редиректит сюда после входа |
 | `APP_TOKEN` | ★ | Секрет приложения — должен совпадать с одним из `APP_TOKENS` в auth-center |
 | `SECRET_KEY` | ★ | Ключ подписи cookie-сессий, произвольная строка |
@@ -57,7 +57,7 @@ GitHub Actions → `Deploy` (запуск вручную). Workflow — matrix �
 запускает `bin/deploy.sh`, который:
 
 - кладёт `bin/$APP` в `/opt/$APP/`
-- пишет `/opt/$APP/$APP.env` из переменных, перечисленных в `ENV_KEYS`
+- пишет `/opt/$APP/$APP.env` из переменных, перечисленных в `ENV_KEYS` и `OPTIONAL_ENV_KEYS`
 - генерирует systemd-юнит (`WorkingDirectory=/opt/$APP`)
 - перезапускает приложение и проверяет `GET http://127.0.0.1:$PORT/`
 - при неудаче откатывается на предыдущую версию. Бэкап базы перед деплоем сохраняется
@@ -66,9 +66,11 @@ GitHub Actions → `Deploy` (запуск вручную). Workflow — matrix �
 Что нужно завести в GitHub:
 - repo-level variable `APP`
 - в environments `production-ru` и `production-com`: variables `PORT`, `AUTH_URL`,
-  `AUTH_INTERNAL`, `APP_URL`; secrets `APP_TOKEN`, `SECRET_KEY`
+  `APP_URL` (и при необходимости `AUTH_INTERNAL`); secrets `APP_TOKEN`, `SECRET_KEY`
 
-Пустая переменная из `ENV_KEYS` останавливает деплой до того, как он что-либо тронет.
+Пустая переменная из `ENV_KEYS` останавливает деплой до того, как он что-либо тронет. Переменная
+из `OPTIONAL_ENV_KEYS` может быть пустой: тогда её нет в `$APP.env`, и приложение берёт своё
+значение по умолчанию (для `AUTH_INTERNAL` — `AUTH_URL`).
 
 ## Ночной бэкап
 

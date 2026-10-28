@@ -144,7 +144,12 @@ func main() {
 	dbPath = filepath.Join(os.Getenv("DB_DIR"), appName+".db")
 
 	authURL = os.Getenv("AUTH_URL")
+	// AUTH_INTERNAL is only needed when the app reaches auth-center by a
+	// shorter route than the browser does (e.g. localhost on the same server).
 	authInternal = os.Getenv("AUTH_INTERNAL")
+	if authInternal == "" {
+		authInternal = authURL
+	}
 	appURL = os.Getenv("APP_URL")
 	appToken = os.Getenv("APP_TOKEN")
 	initRegion()

@@ -27,12 +27,15 @@ jobs:
           # Имя приложения: repo-level variable, задаётся вручную (обязательно).
           APP: ${{ vars.APP }}
           # Какие переменные записать в $APP.env (всё ниже в этом блоке).
-          ENV_KEYS: REGION PORT AUTH_URL AUTH_INTERNAL APP_URL APP_TOKEN SECRET_KEY
+          ENV_KEYS: REGION PORT AUTH_URL APP_URL APP_TOKEN SECRET_KEY
+          # Необязательные: пустая не пишется в $APP.env, приложение берёт свой дефолт.
+          OPTIONAL_ENV_KEYS: AUTH_INTERNAL
 
           # Регион наследуется из matrix — отдельно заводить не нужно.
           REGION: ${{ matrix.region }}
           PORT: ${{ vars.PORT }}
           AUTH_URL: ${{ vars.AUTH_URL }}
+          # Не задана — приложение берёт AUTH_URL.
           AUTH_INTERNAL: ${{ vars.AUTH_INTERNAL }}
           APP_URL: ${{ vars.APP_URL }}
           APP_TOKEN: ${{ secrets.APP_TOKEN }}

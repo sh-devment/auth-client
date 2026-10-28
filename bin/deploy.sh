@@ -4,11 +4,14 @@ set -euo pipefail
 
 # Всё app-специфичное приходит из окружения (GitHub Actions vars/secrets):
 #   APP      — имя приложения: бинарь bin/$APP, unit и файлы в /opt/$APP
-#   ENV_KEYS — список переменных (через пробел), которые попадут в $APP.env
-#   PORT     — порт для health check (обязан быть в ENV_KEYS)
+#   ENV_KEYS          — обязательные переменные (через пробел), попадут в $APP.env
+#   OPTIONAL_ENV_KEYS — необязательные: пустая не пишется в $APP.env,
+#                       и приложение берёт своё значение по умолчанию
+#   PORT              — порт для health check (обязан быть в ENV_KEYS)
 
 : "${APP:?APP is not set}"
 : "${ENV_KEYS:?ENV_KEYS is not set}"
+OPTIONAL_ENV_KEYS="${OPTIONAL_ENV_KEYS:-}"
 
 # APP участвует в путях и rm -rf — пускаем только безопасные имена.
 [[ "$APP" =~ ^[a-z0-9][a-z0-9_-]*$ ]] || {
@@ -30,11 +33,14 @@ echo "=== Deploy $APP ==="
 test -f "bin/$APP"
 
 # Проверяем наличие конфигурации, не выводя значения.
-for key in $ENV_KEYS; do
+for key in $ENV_KEYS $OPTIONAL_ENV_KEYS; do
   [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || {
     echo "Invalid env key: '$key'" >&2
     exit 1
   }
+done
+
+for key in $ENV_KEYS; do
   [ -n "${!key:-}" ] || {
     echo "Missing required variable: $key" >&2
     exit 1
@@ -76,6 +82,10 @@ umask 077
 printf 'APP=%s\n' "$APP" > "$ENV_FILE.new"
 for key in $ENV_KEYS; do
   [ "$key" != APP ] || continue
+  printf '%s=%s\n' "$key" "${!key}" >> "$ENV_FILE.new"
+done
+for key in $OPTIONAL_ENV_KEYS; do
+  [ "$key" != APP ] && [ -n "${!key:-}" ] || continue
   printf '%s=%s\n' "$key" "${!key}" >> "$ENV_FILE.new"
 done
 
